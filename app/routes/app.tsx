@@ -1,12 +1,13 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import {
+  Form,
   Link,
   NavLink,
   Outlet,
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
-import { FormEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaSearch, FaPlus } from "react-icons/fa";
 import prismaClient from "~/prismaClient.server";
 
@@ -34,25 +35,24 @@ export default function AppLayout() {
     setSearch(searchParams.get("q") ?? "");
   }, [searchParams]);
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    setSearchParams((prev) => ({
-      ...prev,
-      q: new FormData(e.currentTarget).get("search"),
-    }));
-  };
-
   const { todos } = useLoaderData<typeof loader>();
   return (
     <div className="container flex flex-row flex-nowrap gap-4">
       <aside className="w-[30vw] bg-slate-100 p-8 min-h-screen flex flex-col">
-        <form
-          onSubmit={onSubmit}
+        <Form
+          onChange={(e) => {
+            setSearchParams((prev) => ({
+              ...prev,
+              q: new FormData(e.currentTarget).get("search") ?? "",
+            }));
+          }}
+          // onSubmit={onSubmit}
           className="flex flex-row flex-nowrap gap-2 items-start justify-center"
         >
           <label className="flex w-full h-full flex-row gap-1 p-1 bg-white border-r-2 items-center justify-start border-2 focus-within:border-solid focus-within:border-indigo-400">
             <FaSearch className="ml-2" />
             <input
+              type="search"
               autoComplete="off"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -60,10 +60,13 @@ export default function AppLayout() {
               name="search"
             />
           </label>
-          <button className="bg-slate-400 text-white rounded-sm border-none p-2">
+          <button
+            type="submit"
+            className="bg-slate-400 text-white rounded-sm border-none p-2"
+          >
             Search
           </button>
-        </form>
+        </Form>
         <ul className="list-none h-full overflow-y-auto mt-4 flex items-stretch justify-start w-full flex-col gap-4">
           <li>
             <Link

@@ -1,5 +1,11 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  redirect,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import prismaClient from "~/prismaClient.server";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -29,6 +35,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export default function EditTodoPage() {
   const { todo } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
+
+  const isSubmitting =
+    navigation.state === "submitting" &&
+    navigation.formAction === "/app/todos/" + todo.id + "/edit/";
+
   return (
     <>
       <section className="m-10 p-3 rounded-md bg-slate-200 flex flex-row gap-4 items-center">
@@ -43,24 +55,35 @@ export default function EditTodoPage() {
           <span className="font-bold">Edit:</span> {todo.title}
         </h1>
       </section>
-      <Form action="./" method="patch">
+      <Form aria-disabled={isSubmitting} action="./" method="patch">
         <section className="m-10 p-3 rounded-md bg-slate-200 flex flex-col items-stretch justify-start gap-4">
           <label>
             <div>Todo Name</div>
-            <input name="title" defaultValue={todo.title} />
+            <input
+              disabled={isSubmitting}
+              name="title"
+              defaultValue={todo.title}
+            />
           </label>
           <label>
             <div>Description</div>
-            <input name="description" defaultValue={todo.description} />
+            <input
+              disabled={isSubmitting}
+              name="description"
+              defaultValue={todo.description}
+            />
           </label>
         </section>
         <section className="m-10 p-3 rounded-md bg-slate-200 flex flex-col items-stretch justify-start gap-4">
           <div className="flex flex-row items-center justify-between">
             <button
+              disabled={navigation.state === "submitting"}
               type="submit"
-              className="bg-red-400 text-white rounded-sm border-none p-2"
+              className={`${
+                isSubmitting ? "bg-red-200" : "bg-red-400"
+              } text-white rounded-sm border-none p-2`}
             >
-              Save
+              {isSubmitting ? "Loading" : "Save"}
             </button>
           </div>
         </section>
