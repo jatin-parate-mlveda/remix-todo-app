@@ -4,6 +4,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
+import { format } from "date-fns";
 import prismaClient from "~/prismaClient.server";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
@@ -40,9 +41,13 @@ export default function TodoPage() {
   return (
     <>
       <section className="m-10 p-3 rounded-md bg-slate-200 flex flex-col items-stretch justify-start gap-4">
-        <h1 className="text-lg font-bold">{todo.title}</h1>
+        <h1 className="text-lg">
+          <span className="font-bold">Task:</span> {todo.title}
+        </h1>
         <hr className="border-t border-black" />
         <article>{todo.description}</article>
+        <hr className="border-t border-black" />
+        <time>Created On: {format(todo.createdAt, "yyyy-MM-dd")}</time>
       </section>
       <section className="m-10 p-3 rounded-md bg-slate-200 flex flex-col items-stretch justify-start gap-4">
         <Form

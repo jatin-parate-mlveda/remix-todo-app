@@ -77,6 +77,7 @@ export default function AppLayout() {
           {todos.map((todo) => (
             <li key={todo.id}>
               <NavLink
+                prefetch="intent"
                 to={`/app/todos/${todo.id}`}
                 className={({ isActive }) =>
                   ` inline-block p-2 w-full ${
