@@ -8,11 +8,8 @@ import { format } from "date-fns";
 import prismaClient from "~/prismaClient.server";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  if (isNaN(parseInt(params.todoId!))) {
-    throw redirect("/404");
-  }
   const todo = await prismaClient.todo.findUnique({
-    where: { id: parseInt(params.todoId!, 10) },
+    where: { id: params.todoId! },
   });
 
   if (!todo) throw redirect("/404");
@@ -26,7 +23,7 @@ export const action = async ({
 }: ActionFunctionArgs) => {
   if (method.toLowerCase().localeCompare("delete") === 0) {
     await prismaClient.todo.delete({
-      where: { id: Number.parseInt(params.todoId!, 10) },
+      where: { id: params.todoId! },
     });
 
     throw redirect("/app");

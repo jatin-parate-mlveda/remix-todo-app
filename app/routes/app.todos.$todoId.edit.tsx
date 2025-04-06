@@ -4,11 +4,8 @@ import prismaClient from "~/prismaClient.server";
 import { FaArrowLeft } from "react-icons/fa";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  if (isNaN(parseInt(params.todoId!))) {
-    throw redirect("/404");
-  }
   const todo = await prismaClient.todo.findUnique({
-    where: { id: parseInt(params.todoId!, 10) },
+    where: { id: params.todoId! },
   });
 
   if (!todo) throw redirect("/404");
@@ -20,7 +17,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
 
   const todo = await prismaClient.todo.update({
-    where: { id: parseInt(params.todoId!, 10) },
+    where: { id: params.todoId! },
     data: {
       title: formData.get("title")!.toString(),
       description: formData.get("description")!.toString(),
