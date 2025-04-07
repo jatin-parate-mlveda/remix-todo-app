@@ -56,16 +56,10 @@ export default function AppLayout() {
               autoComplete="off"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="!border-none outline-none h-full"
+              className="!border-none outline-none h-full w-full"
               name="search"
             />
           </label>
-          <button
-            type="submit"
-            className="bg-slate-400 text-white rounded-sm border-none p-2"
-          >
-            Search
-          </button>
         </Form>
         <ul className="list-none h-full overflow-y-auto mt-4 flex items-stretch justify-start w-full flex-col gap-4">
           <li>
