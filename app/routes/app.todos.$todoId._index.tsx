@@ -12,7 +12,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     where: { id: params.todoId! },
   });
 
-  if (!todo) throw redirect("/404");
+  if (!todo) throw redirect("/app");
 
   return { todo };
 };
@@ -22,11 +22,11 @@ export const action = async ({
   request: { method },
 }: ActionFunctionArgs) => {
   if (method.toLowerCase().localeCompare("delete") === 0) {
-    await prismaClient.todo.delete({
+    const deleteResult = await prismaClient.todo.delete({
       where: { id: params.todoId! },
     });
 
-    throw redirect("/app");
+    return { todo: deleteResult };
   }
 
   throw redirect("/404");

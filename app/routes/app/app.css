@@ -1,0 +1,7 @@
+.sidebar_item:has(.active) {
+  @apply bg-slate-300;
+}
+
+.sidebar_item:has(.pending) {
+  @apply bg-slate-400;
+}

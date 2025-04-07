@@ -1,29 +1,53 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import {
   Form,
   Link,
   NavLink,
   Outlet,
+  useFetcher,
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { FaSearch, FaPlus } from "react-icons/fa";
+import { FaSearch, FaPlus, FaCheck } from "react-icons/fa";
 import prismaClient from "~/prismaClient.server";
+import { LinksFunction } from "@remix-run/react/dist/routeModules";
+import styles from "./app.css?url";
+
+export const links: LinksFunction = () => [
+  {
+    rel: "stylesheet",
+    href: styles,
+  },
+];
 
 export const loader = async ({ request: { url } }: LoaderFunctionArgs) => {
   const query = new URL(url).searchParams.get("q");
   // await prismaClient.todo.deleteMany();
   const todos = await prismaClient.todo.findMany({
     take: 10,
-    where: query
-      ? {
-          title: { contains: query },
-        }
-      : undefined,
+    where: {
+      isComplete: false,
+      ...(query
+        ? {
+            title: { contains: query },
+          }
+        : null),
+    },
   });
 
   return { todos };
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const body = await request.json();
+
+  const updatedTodo = await prismaClient.todo.update({
+    where: { id: body.id! },
+    data: { isComplete: true },
+  });
+
+  return { todo: updatedTodo };
 };
 
 export default function AppLayout() {
@@ -31,6 +55,7 @@ export default function AppLayout() {
   const [search, setSearch] = useState<string>(
     () => searchParams.get("q") ?? ""
   );
+  const fetcher = useFetcher();
 
   useEffect(() => {
     setSearch(searchParams.get("q") ?? "");
@@ -73,17 +98,37 @@ export default function AppLayout() {
             </Link>
           </li>
           {todos.map((todo) => (
-            <li key={todo.id}>
+            <li
+              key={todo.id}
+              className="flex flex-row flex-nowrap align-middle justify-between p-2 w-full bg-slate-200 sidebar_item"
+            >
               <NavLink
                 to={`/app/todos/${todo.id}`}
-                className={({ isActive }) =>
-                  ` inline-block p-2 w-full ${
-                    isActive ? "bg-slate-300" : "bg-slate-200"
-                  }`
+                className={({ isActive, isPending }) =>
+                  `w-full ${isActive ? "active" : isPending ? "pending" : ""}`
                 }
               >
                 {todo.title || "New Todo"}
               </NavLink>
+              <button
+                type="button"
+                className="rounded-full border border-black p-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  fetcher.submit(
+                    { id: todo.id },
+                    {
+                      action: "/app",
+                      method: "delete",
+                      encType: "application/json",
+                    }
+                  );
+                }}
+              >
+                <FaCheck />
+              </button>
             </li>
           ))}
         </ul>
