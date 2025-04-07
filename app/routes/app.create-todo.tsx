@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import prismaClient from "~/prismaClient.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -16,9 +16,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function CreateTodoPage() {
+  const navigation = useNavigation();
+
+  const isLoading =
+    navigation.formAction?.startsWith("/app/create-todo") &&
+    (navigation.state === "submitting" || navigation.state === "loading");
+
   return (
     <Form
-      action="./"
       method="post"
       className="m-10 p-3 rounded-md bg-slate-200 flex flex-col items-start justify-start gap-4"
     >
@@ -31,8 +36,11 @@ export default function CreateTodoPage() {
         <input name="description" />
       </label>
 
-      <button className="w-full bg-slate-400 text-white rounded-sm border-none p-2">
-        Submit
+      <button
+        disabled={isLoading}
+        className="w-full bg-slate-400 text-white rounded-sm border-none p-2"
+      >
+        {isLoading ? "Submitting..." : "Submit"}
       </button>
     </Form>
   );

@@ -22,6 +22,7 @@ export const loader = async ({ request: { url } }: LoaderFunctionArgs) => {
         }
       : undefined,
   });
+
   return { todos };
 };
 
@@ -56,7 +57,7 @@ export default function AppLayout() {
               autoComplete="off"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="!border-none outline-none h-full w-full"
+              className="!border-none outline-none h-full w-full p-2"
               name="search"
             />
           </label>
@@ -74,7 +75,6 @@ export default function AppLayout() {
           {todos.map((todo) => (
             <li key={todo.id}>
               <NavLink
-                prefetch="intent"
                 to={`/app/todos/${todo.id}`}
                 className={({ isActive }) =>
                   ` inline-block p-2 w-full ${
